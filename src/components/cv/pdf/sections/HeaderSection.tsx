@@ -1,5 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { ContactInfo } from "@/types/cv";
+import { hasContent, RichText } from "@/lib/rich-text-pdf";
 import { styles } from "../styles";
 
 export function HeaderSection({ data }: { data: ContactInfo }) {
@@ -23,7 +24,9 @@ export function HeaderSection({ data }: { data: ContactInfo }) {
 					))}
 				</View>
 			)}
-			{data.summary && <Text style={styles.summary}>{data.summary}</Text>}
+			{hasContent(data.summary) && (
+				<RichText content={data.summary!} style={styles.summary} />
+			)}
 		</View>
 	);
 }

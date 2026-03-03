@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import type { ContactInfo } from "@/types/cv";
 import { SectionWrapper } from "./SectionWrapper";
 
@@ -74,12 +74,10 @@ export function ContactInfoForm({ data, onChange }: ContactInfoFormProps) {
 				</div>
 				<div className="space-y-2 sm:col-span-2">
 					<Label htmlFor="summary">Professional Summary</Label>
-					<Textarea
-						id="summary"
+					<RichTextEditor
 						value={data.summary ?? ""}
-						onChange={(e) => update("summary", e.target.value)}
+						onChange={(html) => update("summary", html)}
 						placeholder="Brief summary of your professional background..."
-						rows={4}
 					/>
 				</div>
 			</div>

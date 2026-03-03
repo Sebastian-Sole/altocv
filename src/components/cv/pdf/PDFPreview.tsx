@@ -1,13 +1,14 @@
 import { pdf } from "@react-pdf/renderer";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import * as pdfjs from "pdfjs-dist";
 import pdfjsWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ContactInfo, CVSections } from "@/types/cv";
-import { Button } from "@/components/ui/button";
 import { ClassicTemplate } from "./ClassicTemplate";
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
+
+const DEBOUNCE_MS = 800;
 
 interface PDFPreviewProps {
 	contactInfo: ContactInfo;
@@ -22,8 +23,8 @@ export function PDFPreview({
 }: PDFPreviewProps) {
 	const [pageDataUrls, setPageDataUrls] = useState<string[]>([]);
 	const [rendering, setRendering] = useState(false);
-	const dataRef = useRef({ contactInfo, sections, sectionOrder });
-	dataRef.current = { contactInfo, sections, sectionOrder };
+	const lastSnapshotRef = useRef<string | null>(null);
+	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const generatePdf = useCallback(
 		async (data: {
@@ -69,35 +70,49 @@ export function PDFPreview({
 		[],
 	);
 
-	// Generate PDF on initial mount
+	// Debounced auto-update when props change
 	useEffect(() => {
-		generatePdf(dataRef.current);
-	}, [generatePdf]);
+		const snapshot = JSON.stringify({ contactInfo, sections, sectionOrder });
+		if (snapshot === lastSnapshotRef.current) {
+			return;
+		}
 
-	const handleRecompile = useCallback(() => {
-		generatePdf(dataRef.current);
-	}, [generatePdf]);
+		const isFirstRender = lastSnapshotRef.current === null;
+		lastSnapshotRef.current = snapshot;
+
+		if (isFirstRender) {
+			generatePdf({ contactInfo, sections, sectionOrder });
+			return;
+		}
+
+		if (debounceRef.current) {
+			clearTimeout(debounceRef.current);
+		}
+
+		debounceRef.current = setTimeout(() => {
+			generatePdf({ contactInfo, sections, sectionOrder });
+		}, DEBOUNCE_MS);
+
+		return () => {
+			if (debounceRef.current) {
+				clearTimeout(debounceRef.current);
+			}
+		};
+	}, [contactInfo, sections, sectionOrder, generatePdf]);
 
 	return (
 		<div className="flex h-full w-full flex-col">
-			<div className="flex items-center justify-center border-b bg-muted/50 py-2">
-				<Button
-					variant="outline"
-					size="sm"
-					onClick={handleRecompile}
-					disabled={rendering}
-				>
-					{rendering ? (
-						<Loader2 className="size-3.5 animate-spin" />
-					) : (
-						<RefreshCw className="size-3.5" />
-					)}
-					{rendering ? "Compiling…" : "Recompile"}
-				</Button>
-			</div>
 			<div className="min-h-0 flex-1 overflow-y-auto bg-muted/30 p-6">
 				{pageDataUrls.length > 0 ? (
-					<div className="mx-auto flex flex-col items-center gap-4">
+					<div className="relative mx-auto flex flex-col items-center gap-4">
+						{rendering && (
+							<div className="absolute inset-x-0 top-2 flex justify-center">
+								<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur">
+									<Loader2 className="size-3 animate-spin" />
+									Updating…
+								</div>
+							</div>
+						)}
 						{pageDataUrls.map((url, i) => (
 							<img
 								key={i}

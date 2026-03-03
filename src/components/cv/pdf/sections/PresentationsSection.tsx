@@ -1,5 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { Presentation } from "@/types/cv";
+import { hasContent, RichText } from "@/lib/rich-text-pdf";
 import { styles } from "../styles";
 
 export function PresentationsSection({ data }: { data: Presentation[] }) {
@@ -14,8 +15,8 @@ export function PresentationsSection({ data }: { data: Presentation[] }) {
 						{item.date && <Text style={styles.itemDate}>{item.date}</Text>}
 					</View>
 					<Text style={styles.itemSubtitle}>{item.event}</Text>
-					{item.description && (
-						<Text style={styles.itemDescription}>{item.description}</Text>
+					{hasContent(item.description) && (
+						<RichText content={item.description!} style={styles.itemDescription} />
 					)}
 				</View>
 			))}

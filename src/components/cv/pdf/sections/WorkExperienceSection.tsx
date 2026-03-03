@@ -1,5 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { WorkExperience } from "@/types/cv";
+import { hasContent, RichText } from "@/lib/rich-text-pdf";
 import { styles } from "../styles";
 
 export function WorkExperienceSection({ data }: { data: WorkExperience[] }) {
@@ -19,8 +20,8 @@ export function WorkExperienceSection({ data }: { data: WorkExperience[] }) {
 						{item.company}
 						{item.location ? `, ${item.location}` : ""}
 					</Text>
-					{item.description && (
-						<Text style={styles.itemDescription}>{item.description}</Text>
+					{hasContent(item.description) && (
+						<RichText content={item.description} style={styles.itemDescription} />
 					)}
 				</View>
 			))}

@@ -2,7 +2,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import type { Presentation } from "@/types/cv";
 import { SectionWrapper } from "./SectionWrapper";
 
@@ -79,13 +79,12 @@ export function PresentationsForm({ data, onChange }: PresentationsFormProps) {
 					</div>
 					<div className="space-y-1">
 						<Label>Description</Label>
-						<Textarea
+						<RichTextEditor
 							value={item.description ?? ""}
-							onChange={(e) =>
-								updateItem(index, { description: e.target.value })
+							onChange={(html) =>
+								updateItem(index, { description: html })
 							}
 							placeholder="Brief description..."
-							rows={2}
 						/>
 					</div>
 				</div>

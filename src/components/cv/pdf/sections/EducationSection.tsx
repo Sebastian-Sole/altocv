@@ -1,5 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { Education } from "@/types/cv";
+import { hasContent, RichText } from "@/lib/rich-text-pdf";
 import { styles } from "../styles";
 
 export function EducationSection({ data }: { data: Education[] }) {
@@ -21,8 +22,8 @@ export function EducationSection({ data }: { data: Education[] }) {
 						{item.institution}
 						{item.location ? `, ${item.location}` : ""}
 					</Text>
-					{item.description && (
-						<Text style={styles.itemDescription}>{item.description}</Text>
+					{hasContent(item.description) && (
+						<RichText content={item.description!} style={styles.itemDescription} />
 					)}
 				</View>
 			))}
