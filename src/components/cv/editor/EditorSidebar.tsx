@@ -1,5 +1,21 @@
+import {
+	closestCenter,
+	DndContext,
+	type DragEndEvent,
+	KeyboardSensor,
+	PointerSensor,
+	useSensor,
+	useSensors,
+} from "@dnd-kit/core";
+import {
+	SortableContext,
+	sortableKeyboardCoordinates,
+	useSortable,
+	verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ContactInfo, CVSections } from "@/types/cv";
 import { AwardsForm } from "./AwardsForm";
 import { CertificatesForm } from "./CertificatesForm";
@@ -8,7 +24,6 @@ import { EducationForm } from "./EducationForm";
 import { InterestsForm } from "./InterestsForm";
 import { LanguagesForm } from "./LanguagesForm";
 import { PresentationsForm } from "./PresentationsForm";
-import { SectionReorder } from "./SectionReorder";
 import { SkillsForm } from "./SkillsForm";
 import { VolunteerWorkForm } from "./VolunteerWorkForm";
 import { WorkExperienceForm } from "./WorkExperienceForm";
@@ -43,6 +58,37 @@ const sectionFormMap: Record<
 	interests: { component: InterestsForm, key: "interests" },
 };
 
+function SortableSection({
+	id,
+	children,
+}: { id: string; children: React.ReactNode }) {
+	const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+		useSortable({ id });
+
+	const style = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+	};
+
+	return (
+		<div
+			ref={setNodeRef}
+			style={style}
+			className={`flex items-start gap-1 ${isDragging ? "z-50 opacity-80" : ""}`}
+		>
+			<button
+				type="button"
+				className="mt-2.5 cursor-grab touch-none text-muted-foreground hover:text-foreground"
+				{...attributes}
+				{...listeners}
+			>
+				<GripVertical className="h-4 w-4" />
+			</button>
+			<div className="min-w-0 flex-1">{children}</div>
+		</div>
+	);
+}
+
 export function EditorSidebar({
 	contactInfo,
 	sections,
@@ -51,52 +97,65 @@ export function EditorSidebar({
 	onSectionsChange,
 	onSectionOrderChange,
 }: EditorSidebarProps) {
+	const sensors = useSensors(
+		useSensor(PointerSensor),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		}),
+	);
+
 	function handleSectionChange(key: keyof CVSections, value: unknown) {
 		onSectionsChange({ ...sections, [key]: value });
 	}
 
+	function handleDragEnd(event: DragEndEvent) {
+		const { active, over } = event;
+		if (over && active.id !== over.id) {
+			const oldIndex = sectionOrder.indexOf(active.id as string);
+			const newIndex = sectionOrder.indexOf(over.id as string);
+			const newOrder = [...sectionOrder];
+			newOrder.splice(oldIndex, 1);
+			newOrder.splice(newIndex, 0, active.id as string);
+			onSectionOrderChange(newOrder);
+		}
+	}
+
 	return (
 		<div className="flex h-full w-full flex-col border-r">
-			<Tabs defaultValue="edit" className="flex h-full flex-col">
-				<TabsList className="mx-4 mt-2">
-					<TabsTrigger value="edit">Edit</TabsTrigger>
-					<TabsTrigger value="reorder">Reorder</TabsTrigger>
-				</TabsList>
-				<TabsContent value="edit" className="flex-1 overflow-hidden">
-					<ScrollArea className="h-full">
-						<div className="space-y-4 p-4">
-							<ContactInfoForm
-								data={contactInfo}
-								onChange={onContactInfoChange}
-							/>
+			<ScrollArea className="h-full">
+				<div className="space-y-4 p-4">
+					<ContactInfoForm
+						data={contactInfo}
+						onChange={onContactInfoChange}
+					/>
+					<DndContext
+						sensors={sensors}
+						collisionDetection={closestCenter}
+						onDragEnd={handleDragEnd}
+					>
+						<SortableContext
+							items={sectionOrder}
+							strategy={verticalListSortingStrategy}
+						>
 							{sectionOrder.map((sectionId) => {
 								const config = sectionFormMap[sectionId];
 								if (!config) return null;
 								const FormComponent = config.component;
 								return (
-									<FormComponent
-										key={sectionId}
-										data={sections[config.key]}
-										onChange={(value: unknown) =>
-											handleSectionChange(config.key, value)
-										}
-									/>
+									<SortableSection key={sectionId} id={sectionId}>
+										<FormComponent
+											data={sections[config.key]}
+											onChange={(value: unknown) =>
+												handleSectionChange(config.key, value)
+											}
+										/>
+									</SortableSection>
 								);
 							})}
-						</div>
-					</ScrollArea>
-				</TabsContent>
-				<TabsContent value="reorder" className="flex-1 overflow-hidden">
-					<ScrollArea className="h-full">
-						<div className="p-4">
-							<SectionReorder
-								sectionOrder={sectionOrder}
-								onReorder={onSectionOrderChange}
-							/>
-						</div>
-					</ScrollArea>
-				</TabsContent>
-			</Tabs>
+						</SortableContext>
+					</DndContext>
+				</div>
+			</ScrollArea>
 		</div>
 	);
 }

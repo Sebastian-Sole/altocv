@@ -48,7 +48,7 @@ export function PDFPreview({
 
 				for (let i = 1; i <= pdfDoc.numPages; i++) {
 					const page = await pdfDoc.getPage(i);
-					const scale = 2;
+					const scale = 6;
 					const viewport = page.getViewport({ scale });
 
 					const canvas = document.createElement("canvas");
@@ -92,12 +92,6 @@ export function PDFPreview({
 		debounceRef.current = setTimeout(() => {
 			generatePdf({ contactInfo, sections, sectionOrder });
 		}, DEBOUNCE_MS);
-
-		return () => {
-			if (debounceRef.current) {
-				clearTimeout(debounceRef.current);
-			}
-		};
 	}, [contactInfo, sections, sectionOrder, generatePdf]);
 
 	return (
@@ -118,7 +112,7 @@ export function PDFPreview({
 								key={i}
 								src={url}
 								alt={`Page ${i + 1}`}
-								className="w-full max-w-[595px] rounded-sm shadow-md"
+								className="w-full rounded-sm shadow-md"
 							/>
 						))}
 					</div>
