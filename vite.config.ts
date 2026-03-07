@@ -6,7 +6,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
 	server: {
-		allowedHosts: ["sole-kno"],
+		allowedHosts: ["sole-kno", "sole-mac"],
 	},
 	optimizeDeps: {
 		include: [

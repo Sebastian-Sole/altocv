@@ -15,6 +15,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
+import { DragHandleProvider } from "./SectionWrapper";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ContactInfo, CVSections } from "@/types/cv";
 import { AwardsForm } from "./AwardsForm";
@@ -70,21 +71,24 @@ function SortableSection({
 		transition,
 	};
 
+	const handle = (
+		<button
+			type="button"
+			className="cursor-grab touch-none pl-3 text-muted-foreground hover:text-foreground"
+			{...attributes}
+			{...listeners}
+		>
+			<GripVertical className="h-4 w-4" />
+		</button>
+	);
+
 	return (
 		<div
 			ref={setNodeRef}
 			style={style}
-			className={`flex items-start gap-1 ${isDragging ? "z-50 opacity-80" : ""}`}
+			className={isDragging ? "z-50 opacity-80" : ""}
 		>
-			<button
-				type="button"
-				className="mt-2.5 cursor-grab touch-none text-muted-foreground hover:text-foreground"
-				{...attributes}
-				{...listeners}
-			>
-				<GripVertical className="h-4 w-4" />
-			</button>
-			<div className="min-w-0 flex-1">{children}</div>
+			<DragHandleProvider handle={handle}>{children}</DragHandleProvider>
 		</div>
 	);
 }
