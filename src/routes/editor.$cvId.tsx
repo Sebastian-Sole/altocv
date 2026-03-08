@@ -98,9 +98,30 @@ function EditorPage() {
 		);
 	}
 
+	const pdfPreview = (
+		<Suspense
+			fallback={
+				<div className="flex h-full w-full items-center justify-center">
+					<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+				</div>
+			}
+		>
+			<PDFPreview
+				contactInfo={contactInfo}
+				sections={sections}
+				sectionOrder={sectionOrder}
+			/>
+		</Suspense>
+	);
+
 	return (
 		<div className="flex h-screen flex-col">
-			<EditorHeader title={title} onTitleChange={setLocalTitle} saving={saving}>
+			<EditorHeader
+				title={title}
+				onTitleChange={setLocalTitle}
+				saving={saving}
+				preview={pdfPreview}
+			>
 				<TranslateDialog cvId={cvId} currentLanguage={cv.language} />
 				<ShareDialog cvId={cvId} isPublic={cv.isPublic ?? false} />
 				<ExportButton
@@ -121,21 +142,7 @@ function EditorPage() {
 						onSectionOrderChange={handleSectionOrderChange}
 					/>
 				}
-				preview={
-					<Suspense
-						fallback={
-							<div className="flex h-full w-full items-center justify-center">
-								<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-							</div>
-						}
-					>
-						<PDFPreview
-							contactInfo={contactInfo}
-							sections={sections}
-							sectionOrder={sectionOrder}
-						/>
-					</Suspense>
-				}
+				preview={pdfPreview}
 			/>
 		</div>
 	);
