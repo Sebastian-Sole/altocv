@@ -1,5 +1,5 @@
 import { useUser } from "@clerk/tanstack-react-start";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "convex/react";
 import {
 	BarChart3,
@@ -8,13 +8,15 @@ import {
 	Globe,
 	Layout,
 	Link2,
+	Mail,
 	Plus,
 	Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import { CreateCVDialog } from "@/components/cv/CreateCVDialog";
+import { CreateCoverLetterDialog } from "@/components/cover-letter/CreateCoverLetterDialog";
 import { CVCard } from "@/components/cv/CVCard";
-import { EmptyState } from "@/components/cv/EmptyState";
+import { CoverLetterCard } from "@/components/cover-letter/CoverLetterCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +25,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "../../../convex/_generated/api";
 
 const premiumFeatures = [
@@ -72,25 +75,42 @@ const premiumFeatures = [
 
 export function AuthenticatedHome() {
 	const { user } = useUser();
-	const [createDialogOpen, setCreateDialogOpen] = useState(false);
+	const navigate = useNavigate();
+	const [activeTab, setActiveTab] = useState("cvs");
+	const [createCVDialogOpen, setCreateCVDialogOpen] = useState(false);
+	const [createCLDialogOpen, setCreateCLDialogOpen] = useState(false);
+
 	const cvs = useQuery(api.cvs.list);
+	const coverLetters = useQuery(api.coverLetters.list);
+
 	const createCV = useMutation(api.cvs.create);
 	const duplicateCV = useMutation(api.cvs.duplicate);
 	const removeCV = useMutation(api.cvs.remove);
 
+	const createCL = useMutation(api.coverLetters.create);
+	const duplicateCL = useMutation(api.coverLetters.duplicate);
+	const removeCL = useMutation(api.coverLetters.remove);
+
 	const firstName = user?.firstName ?? "there";
 
-	async function handleCreate(data: { title: string; language: string }) {
-		await createCV(data);
-		setCreateDialogOpen(false);
+	async function handleCreateCV(data: { title: string; language: string }) {
+		const id = await createCV(data);
+		setCreateCVDialogOpen(false);
+		navigate({ to: "/editor/$cvId", params: { cvId: id } });
 	}
 
-	async function handleDuplicate(id: string) {
-		await duplicateCV({ id: id as any });
-	}
-
-	async function handleDelete(id: string) {
-		await removeCV({ id: id as any });
+	async function handleCreateCL(data: {
+		title: string;
+		language: string;
+		templateId: string;
+		linkedCvId?: string;
+	}) {
+		const id = await createCL({
+			...data,
+			linkedCvId: data.linkedCvId as any,
+		});
+		setCreateCLDialogOpen(false);
+		navigate({ to: "/editor/cover-letter/$clId", params: { clId: id } });
 	}
 
 	return (
@@ -107,60 +127,147 @@ export function AuthenticatedHome() {
 								Pick up where you left off or start something new.
 							</p>
 						</div>
-						<Button
-							size="lg"
-							onClick={() => setCreateDialogOpen(true)}
-							className="w-full sm:w-auto"
-						>
-							<Plus className="mr-2 h-4 w-4" />
-							New CV
-						</Button>
+						<div className="flex flex-col gap-2 sm:flex-row">
+							<Button
+								size="lg"
+								onClick={() => setCreateCVDialogOpen(true)}
+								className="w-full sm:w-auto"
+							>
+								<Plus className="mr-2 h-4 w-4" />
+								New CV
+							</Button>
+							<Button
+								size="lg"
+								variant="outline"
+								onClick={() => setCreateCLDialogOpen(true)}
+								className="w-full sm:w-auto"
+							>
+								<Plus className="mr-2 h-4 w-4" />
+								New Cover Letter
+							</Button>
+						</div>
 					</div>
 				</div>
 			</section>
 
-			{/* CV list */}
+			{/* Documents list */}
 			<section className="px-4 py-10 sm:px-6 lg:px-8">
 				<div className="mx-auto max-w-7xl">
-					<div className="mb-6 flex items-center justify-between">
-						<h2 className="text-xl font-semibold">My CVs</h2>
-						{cvs && cvs.length > 0 && (
-							<Button
-								variant="ghost"
-								size="sm"
-								asChild
-							>
-								<Link to="/dashboard">View all</Link>
-							</Button>
-						)}
-					</div>
+					<Tabs value={activeTab} onValueChange={setActiveTab}>
+						<div className="mb-6 flex items-center justify-between">
+							<TabsList>
+								<TabsTrigger value="cvs" className="gap-1.5">
+									<FileText className="h-4 w-4" />
+									CVs
+								</TabsTrigger>
+								<TabsTrigger value="cover-letters" className="gap-1.5">
+									<Mail className="h-4 w-4" />
+									Cover Letters
+								</TabsTrigger>
+							</TabsList>
+							{activeTab === "cvs" && cvs && cvs.length > 0 && (
+								<Button variant="ghost" size="sm" asChild>
+									<Link to="/dashboard" search={{ tab: undefined }}>
+										View all
+									</Link>
+								</Button>
+							)}
+							{activeTab === "cover-letters" &&
+								coverLetters &&
+								coverLetters.length > 0 && (
+									<Button variant="ghost" size="sm" asChild>
+										<Link
+											to="/dashboard"
+											search={{ tab: "cover-letters" }}
+										>
+											View all
+										</Link>
+									</Button>
+								)}
+						</div>
 
-					{cvs === undefined ? (
-						<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-							{Array.from({ length: 3 }).map((_, i) => (
-								<div
-									key={`skeleton-${i}`}
-									className="h-28 animate-pulse rounded-lg bg-muted"
+						<TabsContent value="cvs" className="mt-0">
+							{cvs === undefined ? (
+								<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+									{Array.from({ length: 3 }).map((_, i) => (
+										<div
+											key={`skeleton-${i}`}
+											className="h-28 animate-pulse rounded-lg bg-muted"
+										/>
+									))}
+								</div>
+							) : cvs.length === 0 ? (
+								<EmptyState
+									icon={
+										<FileText className="h-12 w-12 text-muted-foreground" />
+									}
+									title="No CVs yet"
+									description="Create your first CV and start building your professional resume."
+									actionLabel="Create your first CV"
+									onAction={() => setCreateCVDialogOpen(true)}
 								/>
-							))}
-						</div>
-					) : cvs.length === 0 ? (
-						<EmptyState onCreateCV={() => setCreateDialogOpen(true)} />
-					) : (
-						<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-							{cvs.slice(0, 6).map((cv) => (
-								<CVCard
-									key={cv._id}
-									id={cv._id}
-									title={cv.title}
-									updatedAt={cv.updatedAt}
-									language={cv.language}
-									onDuplicate={handleDuplicate}
-									onDelete={handleDelete}
+							) : (
+								<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+									{cvs.slice(0, 6).map((cv) => (
+										<CVCard
+											key={cv._id}
+											id={cv._id}
+											title={cv.title}
+											updatedAt={cv.updatedAt}
+											language={cv.language}
+											onDuplicate={(id) =>
+												duplicateCV({ id: id as any })
+											}
+											onDelete={(id) =>
+												removeCV({ id: id as any })
+											}
+										/>
+									))}
+								</div>
+							)}
+						</TabsContent>
+
+						<TabsContent value="cover-letters" className="mt-0">
+							{coverLetters === undefined ? (
+								<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+									{Array.from({ length: 3 }).map((_, i) => (
+										<div
+											key={`skeleton-${i}`}
+											className="h-28 animate-pulse rounded-lg bg-muted"
+										/>
+									))}
+								</div>
+							) : coverLetters.length === 0 ? (
+								<EmptyState
+									icon={
+										<Mail className="h-12 w-12 text-muted-foreground" />
+									}
+									title="No cover letters yet"
+									description="Create your first cover letter to accompany your CV applications."
+									actionLabel="Create your first cover letter"
+									onAction={() => setCreateCLDialogOpen(true)}
 								/>
-							))}
-						</div>
-					)}
+							) : (
+								<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+									{coverLetters.slice(0, 6).map((cl) => (
+										<CoverLetterCard
+											key={cl._id}
+											id={cl._id}
+											title={cl.title}
+											updatedAt={cl.updatedAt}
+											language={cl.language}
+											onDuplicate={(id) =>
+												duplicateCL({ id: id as any })
+											}
+											onDelete={(id) =>
+												removeCL({ id: id as any })
+											}
+										/>
+									))}
+								</div>
+							)}
+						</TabsContent>
+					</Tabs>
 				</div>
 			</section>
 
@@ -169,7 +276,10 @@ export function AuthenticatedHome() {
 				<div className="mx-auto max-w-7xl">
 					<div className="mb-2 flex items-center justify-center gap-2">
 						<Sparkles className="h-5 w-5 text-primary" />
-						<Badge variant="secondary" className="text-xs font-medium uppercase tracking-wider">
+						<Badge
+							variant="secondary"
+							className="text-xs font-medium uppercase tracking-wider"
+						>
 							Premium
 						</Badge>
 					</div>
@@ -192,11 +302,16 @@ export function AuthenticatedHome() {
 										<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
 											<feature.icon className="h-5 w-5 text-primary" />
 										</div>
-										<Badge variant="outline" className="text-xs text-muted-foreground">
+										<Badge
+											variant="outline"
+											className="text-xs text-muted-foreground"
+										>
 											{feature.badge}
 										</Badge>
 									</div>
-									<CardTitle className="text-base">{feature.title}</CardTitle>
+									<CardTitle className="text-base">
+										{feature.title}
+									</CardTitle>
 									<CardDescription className="text-sm leading-relaxed">
 										{feature.description}
 									</CardDescription>
@@ -215,10 +330,44 @@ export function AuthenticatedHome() {
 			</section>
 
 			<CreateCVDialog
-				open={createDialogOpen}
-				onOpenChange={setCreateDialogOpen}
-				onSubmit={handleCreate}
+				open={createCVDialogOpen}
+				onOpenChange={setCreateCVDialogOpen}
+				onSubmit={handleCreateCV}
+			/>
+			<CreateCoverLetterDialog
+				open={createCLDialogOpen}
+				onOpenChange={setCreateCLDialogOpen}
+				onSubmit={handleCreateCL}
 			/>
 		</main>
+	);
+}
+
+function EmptyState({
+	icon,
+	title,
+	description,
+	actionLabel,
+	onAction,
+}: {
+	icon: React.ReactNode;
+	title: string;
+	description: string;
+	actionLabel: string;
+	onAction: () => void;
+}) {
+	return (
+		<div className="flex flex-col items-center justify-center py-24 text-center">
+			<div className="rounded-full bg-muted p-6">{icon}</div>
+			<h2 className="mt-6 text-2xl font-semibold">{title}</h2>
+			<p className="mt-2 max-w-sm text-muted-foreground">{description}</p>
+			<button
+				type="button"
+				onClick={onAction}
+				className="mt-6 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+			>
+				{actionLabel}
+			</button>
+		</div>
 	);
 }

@@ -106,6 +106,19 @@ const sectionsValidator = v.object({
 	interests: v.array(v.string()),
 });
 
+const coverLetterContactInfoValidator = v.object({
+	fullName: v.string(),
+	email: v.string(),
+	phone: v.optional(v.string()),
+	location: v.optional(v.string()),
+});
+
+const recipientInfoValidator = v.object({
+	companyName: v.optional(v.string()),
+	hiringManagerName: v.optional(v.string()),
+	companyAddress: v.optional(v.string()),
+});
+
 export default defineSchema({
 	cvs: defineTable({
 		userId: v.string(),
@@ -115,6 +128,23 @@ export default defineSchema({
 		sectionOrder: v.array(v.string()),
 		contactInfo: contactInfoValidator,
 		sections: sectionsValidator,
+		isPublic: v.optional(v.boolean()),
+		createdAt: v.number(),
+		updatedAt: v.number(),
+	}).index("by_user", ["userId"]),
+
+	coverLetters: defineTable({
+		userId: v.string(),
+		title: v.string(),
+		language: v.string(),
+		templateId: v.string(),
+		linkedCvId: v.optional(v.id("cvs")),
+		contactInfo: coverLetterContactInfoValidator,
+		recipientInfo: recipientInfoValidator,
+		date: v.string(),
+		subject: v.string(),
+		body: v.string(),
+		signOff: v.optional(v.string()),
 		isPublic: v.optional(v.boolean()),
 		createdAt: v.number(),
 		updatedAt: v.number(),

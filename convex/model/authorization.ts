@@ -1,3 +1,4 @@
+import type { Id } from "../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 
 export async function requireAuth(ctx: QueryCtx | MutationCtx) {
@@ -10,10 +11,10 @@ export async function requireAuth(ctx: QueryCtx | MutationCtx) {
 
 export async function requireCVOwnership(
 	ctx: QueryCtx | MutationCtx,
-	cvId: string,
+	cvId: Id<"cvs">,
 ) {
 	const identity = await requireAuth(ctx);
-	const cv = await ctx.db.get(cvId as any);
+	const cv = await ctx.db.get(cvId);
 	if (!cv) {
 		throw new Error("CV not found");
 	}
@@ -21,4 +22,19 @@ export async function requireCVOwnership(
 		throw new Error("Not authorized");
 	}
 	return { identity, cv };
+}
+
+export async function requireCoverLetterOwnership(
+	ctx: QueryCtx | MutationCtx,
+	coverLetterId: Id<"coverLetters">,
+) {
+	const identity = await requireAuth(ctx);
+	const coverLetter = await ctx.db.get(coverLetterId);
+	if (!coverLetter) {
+		throw new Error("Cover letter not found");
+	}
+	if (coverLetter.userId !== identity.subject) {
+		throw new Error("Not authorized");
+	}
+	return { identity, coverLetter };
 }

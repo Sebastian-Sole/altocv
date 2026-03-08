@@ -18,15 +18,12 @@ type CopyState = "idle" | "copied" | "error";
 type LastAction = "enable" | "disable" | null;
 
 function copyToClipboard(text: string, container: HTMLElement): void {
-	// Append inside the provided container (the dialog) so the Radix
-	// focus-trap doesn't block focus on the textarea. Do NOT set readonly —
-	// iOS silently skips execCommand("copy") on readonly elements.
 	const textarea = document.createElement("textarea");
 	textarea.value = text;
 	textarea.style.position = "fixed";
 	textarea.style.left = "-9999px";
 	textarea.style.top = "-9999px";
-	textarea.style.fontSize = "16px"; // prevent iOS zoom
+	textarea.style.fontSize = "16px";
 	container.appendChild(textarea);
 
 	textarea.focus();
@@ -36,12 +33,21 @@ function copyToClipboard(text: string, container: HTMLElement): void {
 }
 
 interface ShareDialogProps {
-	cvId: string;
+	id: string;
 	isPublic: boolean;
+	setPublicMutation: typeof api.cvs.setPublic | typeof api.coverLetters.setPublic;
+	basePath: string;
+	label?: string;
 }
 
-export function ShareDialog({ cvId, isPublic }: ShareDialogProps) {
-	const setPublic = useMutation(api.cvs.setPublic);
+export function ShareDialog({
+	id,
+	isPublic,
+	setPublicMutation,
+	basePath,
+	label = "CV",
+}: ShareDialogProps) {
+	const setPublic = useMutation(setPublicMutation);
 	const [open, setOpen] = useState(false);
 	const [copyState, setCopyState] = useState<CopyState>("idle");
 	const [toggleState, setToggleState] = useState<ToggleState>("idle");
@@ -49,10 +55,9 @@ export function ShareDialog({ cvId, isPublic }: ShareDialogProps) {
 
 	const shareUrl =
 		typeof window !== "undefined"
-			? `${window.location.origin}/cv/${cvId}`
-			: `/cv/${cvId}`;
+			? `${window.location.origin}${basePath}/${id}`
+			: `${basePath}/${id}`;
 
-	// Reset toggle state when the dialog closes
 	useEffect(() => {
 		if (!open) setToggleState("idle");
 	}, [open]);
@@ -62,7 +67,7 @@ export function ShareDialog({ cvId, isPublic }: ShareDialogProps) {
 		setLastAction(action);
 		setToggleState("loading");
 		try {
-			await setPublic({ id: cvId as any, isPublic: !isPublic });
+			await setPublic({ id: id as any, isPublic: !isPublic });
 			setToggleState("success");
 			setTimeout(() => setToggleState("idle"), 2000);
 		} catch {
@@ -73,7 +78,6 @@ export function ShareDialog({ cvId, isPublic }: ShareDialogProps) {
 
 	function handleCopy(e: React.MouseEvent<HTMLButtonElement>) {
 		try {
-			// Use the dialog content as the container so the focus-trap allows it
 			const container = e.currentTarget.closest("[role='dialog']") as HTMLElement | null;
 			copyToClipboard(shareUrl, container ?? document.body);
 			setCopyState("copied");
@@ -161,9 +165,9 @@ export function ShareDialog({ cvId, isPublic }: ShareDialogProps) {
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-md" onOpenAutoFocus={(e) => e.preventDefault()}>
 				<DialogHeader>
-					<DialogTitle>Share CV</DialogTitle>
+					<DialogTitle>Share {label}</DialogTitle>
 					<DialogDescription>
-						Anyone with the link can view a read-only version of your CV.
+						Anyone with the link can view a read-only version of your {label.toLowerCase()}.
 					</DialogDescription>
 				</DialogHeader>
 
@@ -223,7 +227,7 @@ export function ShareDialog({ cvId, isPublic }: ShareDialogProps) {
 							<div className="flex items-center gap-2 rounded-lg border bg-muted/50 p-3">
 								<Link2Off className="h-4 w-4 shrink-0 text-muted-foreground" />
 								<span className="text-sm text-muted-foreground">
-									Link sharing is off — only you can see this CV
+									Link sharing is off — only you can see this {label.toLowerCase()}
 								</span>
 							</div>
 

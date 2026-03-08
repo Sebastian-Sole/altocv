@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as coverLetters from "../coverLetters.js";
 import type * as cvs from "../cvs.js";
 import type * as model_authorization from "../model/authorization.js";
 import type * as translate from "../translate.js";
@@ -19,6 +20,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  coverLetters: typeof coverLetters;
   cvs: typeof cvs;
   "model/authorization": typeof model_authorization;
   translate: typeof translate;

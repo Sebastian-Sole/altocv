@@ -239,10 +239,15 @@ export const duplicate = mutation({
 	handler: async (ctx, args) => {
 		const { cv } = await requireCVOwnership(ctx, args.id);
 		const now = Date.now();
-		const { _id, _creationTime, ...rest } = cv;
 		return await ctx.db.insert("cvs", {
-			...rest,
+			userId: cv.userId,
 			title: `${cv.title} (Copy)`,
+			language: cv.language,
+			templateId: cv.templateId,
+			sectionOrder: cv.sectionOrder,
+			contactInfo: cv.contactInfo,
+			sections: cv.sections,
+			isPublic: cv.isPublic,
 			createdAt: now,
 			updatedAt: now,
 		});

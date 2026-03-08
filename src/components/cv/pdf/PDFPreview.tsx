@@ -3,44 +3,25 @@ import { Loader2 } from "lucide-react";
 import * as pdfjs from "pdfjs-dist";
 import pdfjsWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ContactInfo, CVSections } from "@/types/cv";
-import { ClassicTemplate } from "./ClassicTemplate";
-
 pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
 const DEBOUNCE_MS = 800;
 
 interface PDFPreviewProps {
-	contactInfo: ContactInfo;
-	sections: CVSections;
-	sectionOrder: string[];
+	document: React.ReactElement;
 }
 
-export function PDFPreview({
-	contactInfo,
-	sections,
-	sectionOrder,
-}: PDFPreviewProps) {
+export function PDFPreview({ document: pdfDocument }: PDFPreviewProps) {
 	const [pageDataUrls, setPageDataUrls] = useState<string[]>([]);
 	const [rendering, setRendering] = useState(false);
 	const lastSnapshotRef = useRef<string | null>(null);
 	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const generatePdf = useCallback(
-		async (data: {
-			contactInfo: ContactInfo;
-			sections: CVSections;
-			sectionOrder: string[];
-		}) => {
+		async (doc: React.ReactElement) => {
 			setRendering(true);
 			try {
-				const blob = await pdf(
-					<ClassicTemplate
-						contactInfo={data.contactInfo}
-						sections={data.sections}
-						sectionOrder={data.sectionOrder}
-					/>,
-				).toBlob();
+				const blob = await pdf(doc as any).toBlob();
 
 				const arrayBuffer = await blob.arrayBuffer();
 				const pdfDoc = await pdfjs.getDocument({ data: arrayBuffer }).promise;
@@ -72,7 +53,7 @@ export function PDFPreview({
 
 	// Debounced auto-update when props change
 	useEffect(() => {
-		const snapshot = JSON.stringify({ contactInfo, sections, sectionOrder });
+		const snapshot = JSON.stringify(pdfDocument.props);
 		if (snapshot === lastSnapshotRef.current) {
 			return;
 		}
@@ -81,7 +62,7 @@ export function PDFPreview({
 		lastSnapshotRef.current = snapshot;
 
 		if (isFirstRender) {
-			generatePdf({ contactInfo, sections, sectionOrder });
+			generatePdf(pdfDocument);
 			return;
 		}
 
@@ -90,9 +71,9 @@ export function PDFPreview({
 		}
 
 		debounceRef.current = setTimeout(() => {
-			generatePdf({ contactInfo, sections, sectionOrder });
+			generatePdf(pdfDocument);
 		}, DEBOUNCE_MS);
-	}, [contactInfo, sections, sectionOrder, generatePdf]);
+	}, [pdfDocument, generatePdf]);
 
 	return (
 		<div className="flex h-full w-full flex-col">

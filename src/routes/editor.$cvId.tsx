@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery } from "convex/react";
-import { lazy, Suspense, useCallback, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { EditorHeader } from "@/components/cv/editor/EditorHeader";
 import { EditorLayout } from "@/components/cv/editor/EditorLayout";
 import { EditorSidebar } from "@/components/cv/editor/EditorSidebar";
 import { TranslateDialog } from "@/components/cv/editor/TranslateDialog";
 import { ShareDialog } from "@/components/cv/ShareDialog";
 import { ExportButton } from "@/components/cv/pdf/ExportButton";
+import { loadTemplate } from "@/components/cv/pdf/templates";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import type { ContactInfo, CVSections } from "@/types/cv";
 import { api } from "../../convex/_generated/api";
@@ -36,6 +37,13 @@ function EditorPage() {
 	const [localSectionOrder, setLocalSectionOrder] = useState<string[] | null>(
 		null,
 	);
+
+	const templateId = cv?.templateId ?? "classic";
+	const [Template, setTemplate] = useState<React.ComponentType<any> | null>(null);
+
+	useEffect(() => {
+		loadTemplate(templateId).then((T) => setTemplate(() => T));
+	}, [templateId]);
 
 	const title = localTitle ?? cv?.title ?? "";
 	const contactInfo = localContactInfo ??
@@ -98,7 +106,15 @@ function EditorPage() {
 		);
 	}
 
-	const pdfPreview = (
+	const templateDocument = Template ? (
+		<Template
+			contactInfo={contactInfo}
+			sections={sections}
+			sectionOrder={sectionOrder}
+		/>
+	) : null;
+
+	const pdfPreview = templateDocument ? (
 		<Suspense
 			fallback={
 				<div className="flex h-full w-full items-center justify-center">
@@ -106,12 +122,12 @@ function EditorPage() {
 				</div>
 			}
 		>
-			<PDFPreview
-				contactInfo={contactInfo}
-				sections={sections}
-				sectionOrder={sectionOrder}
-			/>
+			<PDFPreview document={templateDocument} />
 		</Suspense>
+	) : (
+		<div className="flex h-full w-full items-center justify-center">
+			<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+		</div>
 	);
 
 	return (
@@ -123,13 +139,18 @@ function EditorPage() {
 				preview={pdfPreview}
 			>
 				<TranslateDialog cvId={cvId} currentLanguage={cv.language} />
-				<ShareDialog cvId={cvId} isPublic={cv.isPublic ?? false} />
-				<ExportButton
-					title={title}
-					contactInfo={contactInfo}
-					sections={sections}
-					sectionOrder={sectionOrder}
+				<ShareDialog
+					id={cvId}
+					isPublic={cv.isPublic ?? false}
+					setPublicMutation={api.cvs.setPublic}
+					basePath="/cv"
 				/>
+				{templateDocument && (
+					<ExportButton
+						document={templateDocument}
+						fileName={`${title.replace(/\s+/g, "_")}.pdf`}
+					/>
+				)}
 			</EditorHeader>
 			<EditorLayout
 				sidebar={

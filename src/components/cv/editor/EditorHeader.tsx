@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Check, Eye, Loader2, X } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, Check, Eye, Loader2, Pencil, X } from "lucide-react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -20,16 +20,22 @@ export function EditorHeader({
 	children,
 }: EditorHeaderProps) {
 	const [showPreview, setShowPreview] = useState(false);
+	const titleRef = useRef<HTMLInputElement>(null);
 
 	return (
 		<>
 			<header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
 				<Button variant="ghost" size="icon" className="shrink-0" asChild>
-					<Link to="/dashboard">
+					<Link to="/dashboard" search={{ tab: undefined }}>
 						<ArrowLeft className="h-4 w-4" />
 					</Link>
 				</Button>
+				<Pencil
+					className="h-3.5 w-3.5 -mr-1 shrink-0 cursor-pointer text-muted-foreground/50"
+					onClick={() => titleRef.current?.focus()}
+				/>
 				<Input
+					ref={titleRef}
 					value={title}
 					onChange={(e) => onTitleChange(e.target.value)}
 					className="h-8 min-w-0 flex-1 border-none bg-transparent text-lg font-semibold shadow-none focus-visible:ring-0 sm:max-w-xs sm:flex-none"

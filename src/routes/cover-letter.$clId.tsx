@@ -3,7 +3,7 @@ import { useQuery } from "convex/react";
 import { FileText } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { ExportButton } from "@/components/cv/pdf/ExportButton";
-import { loadTemplate } from "@/components/cv/pdf/templates";
+import { loadCoverLetterTemplate } from "@/components/cover-letter/pdf/coverLetterTemplates";
 import { api } from "../../convex/_generated/api";
 
 const PDFPreview = lazy(() =>
@@ -12,28 +12,34 @@ const PDFPreview = lazy(() =>
 	})),
 );
 
-export const Route = createFileRoute("/cv/$cvId")({
-	component: PublicCVPage,
+export const Route = createFileRoute("/cover-letter/$clId")({
+	component: PublicCoverLetterPage,
 });
 
-function PublicCVPage() {
-	const { cvId } = Route.useParams();
-	const cv = useQuery(api.cvs.getPublic, { id: cvId as any });
-	const [Template, setTemplate] = useState<React.ComponentType<any> | null>(null);
+function PublicCoverLetterPage() {
+	const { clId } = Route.useParams();
+	const cl = useQuery(api.coverLetters.getPublic, { id: clId as any });
+	const [Template, setTemplate] = useState<React.ComponentType<any> | null>(
+		null,
+	);
 
-	const templateId = cv?.templateId ?? "classic";
+	const templateId = cl?.templateId ?? "classic-letter";
 
 	useEffect(() => {
-		loadTemplate(templateId).then((T) => setTemplate(() => T));
+		loadCoverLetterTemplate(templateId).then((T) => setTemplate(() => T));
 	}, [templateId]);
 
-	const templateDocument = cv && Template ? (
-		<Template
-			contactInfo={cv.contactInfo}
-			sections={cv.sections}
-			sectionOrder={cv.sectionOrder}
-		/>
-	) : null;
+	const templateDocument =
+		cl && Template ? (
+			<Template
+				contactInfo={cl.contactInfo}
+				recipientInfo={cl.recipientInfo}
+				date={cl.date}
+				subject={cl.subject}
+				body={cl.body}
+				signOff={cl.signOff}
+			/>
+		) : null;
 
 	return (
 		<div className="flex h-screen flex-col">
@@ -46,17 +52,17 @@ function PublicCVPage() {
 				{templateDocument && (
 					<ExportButton
 						document={templateDocument}
-						fileName={`${cv!.title.replace(/\s+/g, "_")}.pdf`}
+						fileName={`${cl!.title.replace(/\s+/g, "_")}.pdf`}
 					/>
 				)}
 			</header>
 
 			<div className="min-h-0 flex-1">
-				{cv === undefined ? (
+				{cl === undefined ? (
 					<div className="flex h-full items-center justify-center">
 						<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
 					</div>
-				) : cv === null ? (
+				) : cl === null ? (
 					<NotFound />
 				) : templateDocument ? (
 					<Suspense
@@ -75,10 +81,13 @@ function PublicCVPage() {
 				)}
 			</div>
 
-			{cv && (
+			{cl && (
 				<footer className="shrink-0 border-t bg-muted/30 px-4 py-3 text-center text-sm text-muted-foreground sm:px-6">
 					Created with{" "}
-					<Link to="/" className="font-medium text-foreground underline-offset-4 hover:underline">
+					<Link
+						to="/"
+						className="font-medium text-foreground underline-offset-4 hover:underline"
+					>
 						Alto CV
 					</Link>{" "}
 					— build your own professional CV for free.
@@ -93,9 +102,9 @@ function NotFound() {
 		<div className="flex h-full flex-col items-center justify-center gap-4 px-4 text-center">
 			<FileText className="h-12 w-12 text-muted-foreground/40" />
 			<div>
-				<h1 className="text-xl font-semibold">CV not available</h1>
+				<h1 className="text-xl font-semibold">Cover letter not available</h1>
 				<p className="mt-1 text-sm text-muted-foreground">
-					This CV is either private or doesn't exist.
+					This cover letter is either private or doesn't exist.
 				</p>
 			</div>
 			<Link

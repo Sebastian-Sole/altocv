@@ -23,7 +23,7 @@ export function Header() {
 					</SignedOut>
 					<SignedIn>
 						<Button variant="ghost" asChild>
-							<Link to="/dashboard">Dashboard</Link>
+							<Link to="/dashboard" search={{ tab: undefined }}>Dashboard</Link>
 						</Button>
 						<UserButton />
 					</SignedIn>

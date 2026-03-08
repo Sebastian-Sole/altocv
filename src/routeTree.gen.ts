@@ -17,6 +17,8 @@ import { Route as SignUpSplatRouteImport } from './routes/sign-up.$'
 import { Route as SignInSplatRouteImport } from './routes/sign-in.$'
 import { Route as EditorCvIdRouteImport } from './routes/editor.$cvId'
 import { Route as CvCvIdRouteImport } from './routes/cv.$cvId'
+import { Route as CoverLetterClIdRouteImport } from './routes/cover-letter.$clId'
+import { Route as EditorCoverLetterClIdRouteImport } from './routes/editor.cover-letter.$clId'
 
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
@@ -58,26 +60,40 @@ const CvCvIdRoute = CvCvIdRouteImport.update({
   path: '/cv/$cvId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoverLetterClIdRoute = CoverLetterClIdRouteImport.update({
+  id: '/cover-letter/$clId',
+  path: '/cover-letter/$clId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EditorCoverLetterClIdRoute = EditorCoverLetterClIdRouteImport.update({
+  id: '/editor/cover-letter/$clId',
+  path: '/editor/cover-letter/$clId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/sign-in': typeof SignInRouteWithChildren
   '/sign-up': typeof SignUpRouteWithChildren
+  '/cover-letter/$clId': typeof CoverLetterClIdRoute
   '/cv/$cvId': typeof CvCvIdRoute
   '/editor/$cvId': typeof EditorCvIdRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
+  '/editor/cover-letter/$clId': typeof EditorCoverLetterClIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/sign-in': typeof SignInRouteWithChildren
   '/sign-up': typeof SignUpRouteWithChildren
+  '/cover-letter/$clId': typeof CoverLetterClIdRoute
   '/cv/$cvId': typeof CvCvIdRoute
   '/editor/$cvId': typeof EditorCvIdRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
+  '/editor/cover-letter/$clId': typeof EditorCoverLetterClIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -85,10 +101,12 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/sign-in': typeof SignInRouteWithChildren
   '/sign-up': typeof SignUpRouteWithChildren
+  '/cover-letter/$clId': typeof CoverLetterClIdRoute
   '/cv/$cvId': typeof CvCvIdRoute
   '/editor/$cvId': typeof EditorCvIdRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
+  '/editor/cover-letter/$clId': typeof EditorCoverLetterClIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,30 +115,36 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/sign-in'
     | '/sign-up'
+    | '/cover-letter/$clId'
     | '/cv/$cvId'
     | '/editor/$cvId'
     | '/sign-in/$'
     | '/sign-up/$'
+    | '/editor/cover-letter/$clId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/dashboard'
     | '/sign-in'
     | '/sign-up'
+    | '/cover-letter/$clId'
     | '/cv/$cvId'
     | '/editor/$cvId'
     | '/sign-in/$'
     | '/sign-up/$'
+    | '/editor/cover-letter/$clId'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
     | '/sign-in'
     | '/sign-up'
+    | '/cover-letter/$clId'
     | '/cv/$cvId'
     | '/editor/$cvId'
     | '/sign-in/$'
     | '/sign-up/$'
+    | '/editor/cover-letter/$clId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -128,8 +152,10 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   SignInRoute: typeof SignInRouteWithChildren
   SignUpRoute: typeof SignUpRouteWithChildren
+  CoverLetterClIdRoute: typeof CoverLetterClIdRoute
   CvCvIdRoute: typeof CvCvIdRoute
   EditorCvIdRoute: typeof EditorCvIdRoute
+  EditorCoverLetterClIdRoute: typeof EditorCoverLetterClIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -190,6 +216,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CvCvIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cover-letter/$clId': {
+      id: '/cover-letter/$clId'
+      path: '/cover-letter/$clId'
+      fullPath: '/cover-letter/$clId'
+      preLoaderRoute: typeof CoverLetterClIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/editor/cover-letter/$clId': {
+      id: '/editor/cover-letter/$clId'
+      path: '/editor/cover-letter/$clId'
+      fullPath: '/editor/cover-letter/$clId'
+      preLoaderRoute: typeof EditorCoverLetterClIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -220,8 +260,10 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   SignInRoute: SignInRouteWithChildren,
   SignUpRoute: SignUpRouteWithChildren,
+  CoverLetterClIdRoute: CoverLetterClIdRoute,
   CvCvIdRoute: CvCvIdRoute,
   EditorCvIdRoute: EditorCvIdRoute,
+  EditorCoverLetterClIdRoute: EditorCoverLetterClIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
