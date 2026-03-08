@@ -17,7 +17,10 @@ export const list = query({
 export const get = query({
 	args: { id: v.id("cvs") },
 	handler: async (ctx, args) => {
-		const { cv } = await requireCVOwnership(ctx, args.id);
+		const identity = await ctx.auth.getUserIdentity();
+		if (!identity) return null;
+		const cv = await ctx.db.get(args.id);
+		if (!cv || cv.userId !== identity.subject) return null;
 		return cv;
 	},
 });
@@ -211,6 +214,23 @@ export const remove = mutation({
 	handler: async (ctx, args) => {
 		await requireCVOwnership(ctx, args.id);
 		await ctx.db.delete(args.id);
+	},
+});
+
+export const getPublic = query({
+	args: { id: v.id("cvs") },
+	handler: async (ctx, args) => {
+		const cv = await ctx.db.get(args.id);
+		if (!cv || !cv.isPublic) return null;
+		return cv;
+	},
+});
+
+export const setPublic = mutation({
+	args: { id: v.id("cvs"), isPublic: v.boolean() },
+	handler: async (ctx, args) => {
+		await requireCVOwnership(ctx, args.id);
+		await ctx.db.patch(args.id, { isPublic: args.isPublic });
 	},
 });
 

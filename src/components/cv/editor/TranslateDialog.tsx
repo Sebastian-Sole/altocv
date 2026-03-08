@@ -70,8 +70,8 @@ export function TranslateDialog({
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				<Button variant="outline" size="sm">
-					<Globe className="mr-2 h-4 w-4" />
-					Translate
+					<Globe className="h-4 w-4 sm:mr-2" />
+					<span className="hidden sm:inline">Translate</span>
 				</Button>
 			</DialogTrigger>
 			<DialogContent>

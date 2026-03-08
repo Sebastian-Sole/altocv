@@ -32,8 +32,10 @@ export function ExportButton({
 		>
 			{({ loading }) => (
 				<Button variant="outline" size="sm" disabled={loading}>
-					<Download className="mr-2 h-4 w-4" />
-					{loading ? "Generating..." : "Export PDF"}
+					<Download className="h-4 w-4 sm:mr-2" />
+					<span className="hidden sm:inline">
+						{loading ? "Generating..." : "Export PDF"}
+					</span>
 				</Button>
 			)}
 		</PDFDownloadLink>

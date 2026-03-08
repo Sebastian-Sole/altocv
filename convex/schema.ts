@@ -115,6 +115,7 @@ export default defineSchema({
 		sectionOrder: v.array(v.string()),
 		contactInfo: contactInfoValidator,
 		sections: sectionsValidator,
+		isPublic: v.optional(v.boolean()),
 		createdAt: v.number(),
 		updatedAt: v.number(),
 	}).index("by_user", ["userId"]),

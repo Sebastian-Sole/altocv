@@ -17,8 +17,8 @@ export function EditorHeader({
 	children,
 }: EditorHeaderProps) {
 	return (
-		<header className="flex h-14 items-center gap-3 border-b bg-background px-4">
-			<Button variant="ghost" size="icon" asChild>
+		<header className="flex h-14 items-center gap-2 border-b bg-background px-4">
+			<Button variant="ghost" size="icon" className="shrink-0" asChild>
 				<Link to="/dashboard">
 					<ArrowLeft className="h-4 w-4" />
 				</Link>
@@ -26,9 +26,9 @@ export function EditorHeader({
 			<Input
 				value={title}
 				onChange={(e) => onTitleChange(e.target.value)}
-				className="h-8 max-w-xs border-none bg-transparent text-lg font-semibold shadow-none focus-visible:ring-0"
+				className="h-8 min-w-0 flex-1 border-none bg-transparent text-lg font-semibold shadow-none focus-visible:ring-0 sm:max-w-xs sm:flex-none"
 			/>
-			<div className="flex items-center gap-1 text-xs text-muted-foreground">
+			<div className="hidden items-center gap-1 text-xs text-muted-foreground sm:flex">
 				{saving ? (
 					<>
 						<Loader2 className="h-3 w-3 animate-spin" />
@@ -41,7 +41,7 @@ export function EditorHeader({
 					</>
 				)}
 			</div>
-			<div className="ml-auto flex items-center gap-2">{children}</div>
+			<div className="ml-auto flex shrink-0 items-center gap-1.5">{children}</div>
 		</header>
 	);
 }

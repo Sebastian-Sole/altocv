@@ -5,6 +5,7 @@ import { EditorHeader } from "@/components/cv/editor/EditorHeader";
 import { EditorLayout } from "@/components/cv/editor/EditorLayout";
 import { EditorSidebar } from "@/components/cv/editor/EditorSidebar";
 import { TranslateDialog } from "@/components/cv/editor/TranslateDialog";
+import { ShareDialog } from "@/components/cv/ShareDialog";
 import { ExportButton } from "@/components/cv/pdf/ExportButton";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import type { ContactInfo, CVSections } from "@/types/cv";
@@ -101,6 +102,7 @@ function EditorPage() {
 		<div className="flex h-screen flex-col">
 			<EditorHeader title={title} onTitleChange={setLocalTitle} saving={saving}>
 				<TranslateDialog cvId={cvId} currentLanguage={cv.language} />
+				<ShareDialog cvId={cvId} isPublic={cv.isPublic ?? false} />
 				<ExportButton
 					title={title}
 					contactInfo={contactInfo}

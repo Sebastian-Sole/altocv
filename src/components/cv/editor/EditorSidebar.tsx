@@ -16,7 +16,6 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import { DragHandleProvider } from "./SectionWrapper";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ContactInfo, CVSections } from "@/types/cv";
 import { AwardsForm } from "./AwardsForm";
 import { CertificatesForm } from "./CertificatesForm";
@@ -125,41 +124,39 @@ export function EditorSidebar({
 	}
 
 	return (
-		<div className="flex h-full w-full flex-col border-r">
-			<ScrollArea className="h-full">
-				<div className="space-y-4 p-4">
-					<ContactInfoForm
-						data={contactInfo}
-						onChange={onContactInfoChange}
-					/>
-					<DndContext
-						sensors={sensors}
-						collisionDetection={closestCenter}
-						onDragEnd={handleDragEnd}
+		<div className="flex w-full flex-col">
+			<div className="space-y-4 p-4">
+				<ContactInfoForm
+					data={contactInfo}
+					onChange={onContactInfoChange}
+				/>
+				<DndContext
+					sensors={sensors}
+					collisionDetection={closestCenter}
+					onDragEnd={handleDragEnd}
+				>
+					<SortableContext
+						items={sectionOrder}
+						strategy={verticalListSortingStrategy}
 					>
-						<SortableContext
-							items={sectionOrder}
-							strategy={verticalListSortingStrategy}
-						>
-							{sectionOrder.map((sectionId) => {
-								const config = sectionFormMap[sectionId];
-								if (!config) return null;
-								const FormComponent = config.component;
-								return (
-									<SortableSection key={sectionId} id={sectionId}>
-										<FormComponent
-											data={sections[config.key]}
-											onChange={(value: unknown) =>
-												handleSectionChange(config.key, value)
-											}
-										/>
-									</SortableSection>
-								);
-							})}
-						</SortableContext>
-					</DndContext>
-				</div>
-			</ScrollArea>
+						{sectionOrder.map((sectionId) => {
+							const config = sectionFormMap[sectionId];
+							if (!config) return null;
+							const FormComponent = config.component;
+							return (
+								<SortableSection key={sectionId} id={sectionId}>
+									<FormComponent
+										data={sections[config.key]}
+										onChange={(value: unknown) =>
+											handleSectionChange(config.key, value)
+										}
+									/>
+								</SortableSection>
+							);
+						})}
+					</SortableContext>
+				</DndContext>
+			</div>
 		</div>
 	);
 }

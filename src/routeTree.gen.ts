@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SignUpSplatRouteImport } from './routes/sign-up.$'
 import { Route as SignInSplatRouteImport } from './routes/sign-in.$'
 import { Route as EditorCvIdRouteImport } from './routes/editor.$cvId'
+import { Route as CvCvIdRouteImport } from './routes/cv.$cvId'
 
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
@@ -52,12 +53,18 @@ const EditorCvIdRoute = EditorCvIdRouteImport.update({
   path: '/editor/$cvId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CvCvIdRoute = CvCvIdRouteImport.update({
+  id: '/cv/$cvId',
+  path: '/cv/$cvId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/sign-in': typeof SignInRouteWithChildren
   '/sign-up': typeof SignUpRouteWithChildren
+  '/cv/$cvId': typeof CvCvIdRoute
   '/editor/$cvId': typeof EditorCvIdRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/sign-in': typeof SignInRouteWithChildren
   '/sign-up': typeof SignUpRouteWithChildren
+  '/cv/$cvId': typeof CvCvIdRoute
   '/editor/$cvId': typeof EditorCvIdRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/sign-in': typeof SignInRouteWithChildren
   '/sign-up': typeof SignUpRouteWithChildren
+  '/cv/$cvId': typeof CvCvIdRoute
   '/editor/$cvId': typeof EditorCvIdRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/sign-in'
     | '/sign-up'
+    | '/cv/$cvId'
     | '/editor/$cvId'
     | '/sign-in/$'
     | '/sign-up/$'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/sign-in'
     | '/sign-up'
+    | '/cv/$cvId'
     | '/editor/$cvId'
     | '/sign-in/$'
     | '/sign-up/$'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/sign-in'
     | '/sign-up'
+    | '/cv/$cvId'
     | '/editor/$cvId'
     | '/sign-in/$'
     | '/sign-up/$'
@@ -116,6 +128,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   SignInRoute: typeof SignInRouteWithChildren
   SignUpRoute: typeof SignUpRouteWithChildren
+  CvCvIdRoute: typeof CvCvIdRoute
   EditorCvIdRoute: typeof EditorCvIdRoute
 }
 
@@ -170,6 +183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EditorCvIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cv/$cvId': {
+      id: '/cv/$cvId'
+      path: '/cv/$cvId'
+      fullPath: '/cv/$cvId'
+      preLoaderRoute: typeof CvCvIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   SignInRoute: SignInRouteWithChildren,
   SignUpRoute: SignUpRouteWithChildren,
+  CvCvIdRoute: CvCvIdRoute,
   EditorCvIdRoute: EditorCvIdRoute,
 }
 export const routeTree = rootRouteImport
