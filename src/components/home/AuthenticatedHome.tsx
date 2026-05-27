@@ -5,7 +5,6 @@ import {
 	BarChart3,
 	BrainCircuit,
 	FileText,
-	Globe,
 	Layout,
 	Link2,
 	Mail,
@@ -44,24 +43,10 @@ const premiumFeatures = [
 		badge: "Coming Soon",
 	},
 	{
-		icon: Globe,
-		title: "Shareable CV Link",
-		description:
-			"Publish your CV online with a custom URL. Share a live link with recruiters instead of a static file.",
-		badge: "Coming Soon",
-	},
-	{
 		icon: BarChart3,
 		title: "CV Analytics",
 		description:
 			"See how many times your CV was viewed, by whom, and for how long — so you can follow up at the right time.",
-		badge: "Coming Soon",
-	},
-	{
-		icon: FileText,
-		title: "Cover Letter Generator",
-		description:
-			"Instantly generate a tailored cover letter that matches your CV and the job description.",
 		badge: "Coming Soon",
 	},
 	{
