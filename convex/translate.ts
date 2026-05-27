@@ -1,10 +1,18 @@
 "use node";
 
 import Anthropic from "@anthropic-ai/sdk";
-import { v } from "convex/values";
+import { HOUR, RateLimiter } from "@convex-dev/rate-limiter";
+import { ConvexError, v } from "convex/values";
+import { components, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { action, internalAction } from "./_generated/server";
-import { internal } from "./_generated/api";
+
+// Per-user cap on expensive LLM translations: 5 per hour, with burst capacity of 5.
+// Chosen to be generous for legitimate use (translate a CV into a few languages
+// in one sitting) while preventing abuse / runaway Anthropic spend.
+const rateLimiter = new RateLimiter(components.rateLimiter, {
+	translateCV: { kind: "token bucket", rate: 5, period: HOUR, capacity: 5 },
+});
 
 // Re-export as a public action that delegates to the internal one
 export const translateCV = action({
@@ -25,6 +33,16 @@ export const translateCVInternal = internalAction({
 	handler: async (ctx, args): Promise<Id<"cvs">> => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) throw new Error("Not authenticated");
+
+		const { ok, retryAfter } = await rateLimiter.limit(ctx, "translateCV", {
+			key: identity.subject,
+		});
+		if (!ok) {
+			const minutes = Math.max(1, Math.ceil((retryAfter ?? 0) / 60_000));
+			throw new ConvexError(
+				`Translation limit reached. You can translate up to 5 CVs per hour. Try again in ${minutes} minute${minutes === 1 ? "" : "s"}.`,
+			);
+		}
 
 		if (!process.env.ANTHROPIC_API_KEY) {
 			throw new Error(
