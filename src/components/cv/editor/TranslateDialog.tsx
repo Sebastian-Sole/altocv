@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useAction } from "convex/react";
+import { ConvexError } from "convex/values";
 import { Globe, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -48,12 +49,14 @@ export function TranslateDialog({
 	const [open, setOpen] = useState(false);
 	const [targetLanguage, setTargetLanguage] = useState("");
 	const [translating, setTranslating] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 	const translateCV = useAction(api.translate.translateCV);
 	const navigate = useNavigate();
 
 	async function handleTranslate() {
 		if (!targetLanguage) return;
 		setTranslating(true);
+		setError(null);
 		try {
 			const newCvId = await translateCV({
 				cvId: cvId as any,
@@ -61,13 +64,25 @@ export function TranslateDialog({
 			});
 			setOpen(false);
 			navigate({ to: "/editor/$cvId", params: { cvId: newCvId } });
+		} catch (e) {
+			const message =
+				e instanceof ConvexError && typeof e.data === "string"
+					? e.data
+					: "Something went wrong. Please try again.";
+			setError(message);
 		} finally {
 			setTranslating(false);
 		}
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog
+			open={open}
+			onOpenChange={(next) => {
+				setOpen(next);
+				if (!next) setError(null);
+			}}
+		>
 			<DialogTrigger asChild>
 				<Button variant="outline" size="sm">
 					<Globe className="h-4 w-4 sm:mr-2" />
@@ -99,6 +114,14 @@ export function TranslateDialog({
 						</SelectContent>
 					</Select>
 				</div>
+				{error && (
+					<p
+						role="alert"
+						className="text-sm text-destructive"
+					>
+						{error}
+					</p>
+				)}
 				<DialogFooter>
 					<Button
 						onClick={handleTranslate}
