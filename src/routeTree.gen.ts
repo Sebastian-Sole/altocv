@@ -9,8 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SignUpSplatRouteImport } from './routes/sign-up.$'
@@ -20,6 +22,11 @@ import { Route as CvCvIdRouteImport } from './routes/cv.$cvId'
 import { Route as CoverLetterClIdRouteImport } from './routes/cover-letter.$clId'
 import { Route as EditorCoverLetterClIdRouteImport } from './routes/editor.cover-letter.$clId'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
@@ -28,6 +35,11 @@ const SignUpRoute = SignUpRouteImport.update({
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -74,8 +86,10 @@ const EditorCoverLetterClIdRoute = EditorCoverLetterClIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRouteWithChildren
   '/sign-up': typeof SignUpRouteWithChildren
+  '/terms': typeof TermsRoute
   '/cover-letter/$clId': typeof CoverLetterClIdRoute
   '/cv/$cvId': typeof CvCvIdRoute
   '/editor/$cvId': typeof EditorCvIdRoute
@@ -86,8 +100,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRouteWithChildren
   '/sign-up': typeof SignUpRouteWithChildren
+  '/terms': typeof TermsRoute
   '/cover-letter/$clId': typeof CoverLetterClIdRoute
   '/cv/$cvId': typeof CvCvIdRoute
   '/editor/$cvId': typeof EditorCvIdRoute
@@ -99,8 +115,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRouteWithChildren
   '/sign-up': typeof SignUpRouteWithChildren
+  '/terms': typeof TermsRoute
   '/cover-letter/$clId': typeof CoverLetterClIdRoute
   '/cv/$cvId': typeof CvCvIdRoute
   '/editor/$cvId': typeof EditorCvIdRoute
@@ -113,8 +131,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/privacy'
     | '/sign-in'
     | '/sign-up'
+    | '/terms'
     | '/cover-letter/$clId'
     | '/cv/$cvId'
     | '/editor/$cvId'
@@ -125,8 +145,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/privacy'
     | '/sign-in'
     | '/sign-up'
+    | '/terms'
     | '/cover-letter/$clId'
     | '/cv/$cvId'
     | '/editor/$cvId'
@@ -137,8 +159,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/privacy'
     | '/sign-in'
     | '/sign-up'
+    | '/terms'
     | '/cover-letter/$clId'
     | '/cv/$cvId'
     | '/editor/$cvId'
@@ -150,8 +174,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  PrivacyRoute: typeof PrivacyRoute
   SignInRoute: typeof SignInRouteWithChildren
   SignUpRoute: typeof SignUpRouteWithChildren
+  TermsRoute: typeof TermsRoute
   CoverLetterClIdRoute: typeof CoverLetterClIdRoute
   CvCvIdRoute: typeof CvCvIdRoute
   EditorCvIdRoute: typeof EditorCvIdRoute
@@ -160,6 +186,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sign-up': {
       id: '/sign-up'
       path: '/sign-up'
@@ -172,6 +205,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -258,8 +298,10 @@ const SignUpRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  PrivacyRoute: PrivacyRoute,
   SignInRoute: SignInRouteWithChildren,
   SignUpRoute: SignUpRouteWithChildren,
+  TermsRoute: TermsRoute,
   CoverLetterClIdRoute: CoverLetterClIdRoute,
   CvCvIdRoute: CvCvIdRoute,
   EditorCvIdRoute: EditorCvIdRoute,

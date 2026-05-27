@@ -18,6 +18,12 @@ const PDFPreview = lazy(() =>
 );
 
 export const Route = createFileRoute("/editor/cover-letter/$clId")({
+	head: () => ({
+		meta: [
+			{ title: "Cover Letter Editor — Alto CV" },
+			{ name: "robots", content: "noindex" },
+		],
+	}),
 	component: CoverLetterEditorPage,
 });
 

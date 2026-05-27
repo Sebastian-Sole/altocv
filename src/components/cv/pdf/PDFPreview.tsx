@@ -1,8 +1,9 @@
 import { pdf } from "@react-pdf/renderer";
-import { Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2, RefreshCw } from "lucide-react";
 import * as pdfjs from "pdfjs-dist";
 import pdfjsWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
 const DEBOUNCE_MS = 800;
@@ -14,12 +15,14 @@ interface PDFPreviewProps {
 export function PDFPreview({ document: pdfDocument }: PDFPreviewProps) {
 	const [pageDataUrls, setPageDataUrls] = useState<string[]>([]);
 	const [rendering, setRendering] = useState(false);
+	const [error, setError] = useState<Error | null>(null);
 	const lastSnapshotRef = useRef<string | null>(null);
 	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const generatePdf = useCallback(
 		async (doc: React.ReactElement) => {
 			setRendering(true);
+			setError(null);
 			try {
 				const blob = await pdf(doc as any).toBlob();
 
@@ -44,12 +47,17 @@ export function PDFPreview({ document: pdfDocument }: PDFPreviewProps) {
 				setPageDataUrls(urls);
 			} catch (err) {
 				console.error("PDF generation failed:", err);
+				setError(err instanceof Error ? err : new Error(String(err)));
 			} finally {
 				setRendering(false);
 			}
 		},
 		[],
 	);
+
+	const retry = useCallback(() => {
+		generatePdf(pdfDocument);
+	}, [generatePdf, pdfDocument]);
 
 	// Debounced auto-update when props change
 	useEffect(() => {
@@ -96,6 +104,32 @@ export function PDFPreview({ document: pdfDocument }: PDFPreviewProps) {
 								className="w-full rounded-sm shadow-md"
 							/>
 						))}
+					</div>
+				) : error ? (
+					<div className="flex h-full flex-col items-center justify-center gap-4 text-center">
+						<div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-destructive/10">
+							<AlertTriangle className="h-6 w-6 text-destructive" />
+						</div>
+						<div className="space-y-1">
+							<p className="text-sm font-medium">Couldn't render preview</p>
+							<p className="mx-auto max-w-sm text-xs text-muted-foreground">
+								Something went wrong generating the PDF. You can try again.
+							</p>
+							{import.meta.env.DEV && error.message ? (
+								<pre className="mx-auto mt-2 max-w-md overflow-x-auto rounded-md bg-muted px-3 py-2 text-left text-[11px] text-muted-foreground">
+									{error.message}
+								</pre>
+							) : null}
+						</div>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={retry}
+							disabled={rendering}
+						>
+							<RefreshCw className="mr-2 h-3.5 w-3.5" />
+							Try again
+						</Button>
 					</div>
 				) : (
 					<div className="flex h-full items-center justify-center">
