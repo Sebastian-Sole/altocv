@@ -19,6 +19,12 @@ const PDFPreview = lazy(() =>
 );
 
 export const Route = createFileRoute("/editor/$cvId")({
+	head: () => ({
+		meta: [
+			{ title: "CV Editor — Alto CV" },
+			{ name: "robots", content: "noindex" },
+		],
+	}),
 	component: EditorPage,
 });
 

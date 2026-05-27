@@ -13,6 +13,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "../../convex/_generated/api";
 
 export const Route = createFileRoute("/dashboard")({
+	head: () => ({
+		meta: [
+			{ title: "Dashboard — Alto CV" },
+			{ name: "robots", content: "noindex" },
+		],
+	}),
 	component: DashboardPage,
 	validateSearch: (search: Record<string, unknown>) => ({
 		tab: search.tab === "cover-letters" ? ("cover-letters" as const) : undefined,

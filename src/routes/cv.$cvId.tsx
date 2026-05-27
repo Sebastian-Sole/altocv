@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ConvexHttpClient } from "convex/browser";
 import { useQuery } from "convex/react";
 import { FileText } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
@@ -12,7 +13,60 @@ const PDFPreview = lazy(() =>
 	})),
 );
 
+const SITE_DEFAULT_DESCRIPTION =
+	"Alto CV — a modern CV and cover letter builder.";
+
 export const Route = createFileRoute("/cv/$cvId")({
+	loader: async ({ params }) => {
+		const url = import.meta.env.VITE_CONVEX_URL as string | undefined;
+		if (!url) {
+			return { meta: null as null | { title: string; ownerName: string } };
+		}
+		try {
+			const client = new ConvexHttpClient(url);
+			const cv = await client.query(api.cvs.getPublic, {
+				id: params.cvId as any,
+			});
+			if (!cv) {
+				return { meta: null };
+			}
+			return {
+				meta: {
+					title: cv.title as string,
+					ownerName: (cv.contactInfo?.fullName as string) ?? "",
+				},
+			};
+		} catch {
+			return { meta: null };
+		}
+	},
+	head: ({ loaderData }) => {
+		const meta = loaderData?.meta;
+		if (!meta) {
+			return {
+				meta: [
+					{ title: "Shared CV — Alto CV" },
+					{ name: "description", content: SITE_DEFAULT_DESCRIPTION },
+					{ name: "robots", content: "noindex" },
+				],
+			};
+		}
+		const pageTitle = `${meta.title} — Alto CV`;
+		const description = meta.ownerName
+			? `${meta.ownerName}'s CV, built with Alto CV.`
+			: `A CV built with Alto CV.`;
+		return {
+			meta: [
+				{ title: pageTitle },
+				{ name: "description", content: description },
+				{ property: "og:title", content: pageTitle },
+				{ property: "og:description", content: description },
+				{ property: "og:type", content: "profile" },
+				{ name: "twitter:title", content: pageTitle },
+				{ name: "twitter:description", content: description },
+			],
+		};
+	},
 	component: PublicCVPage,
 });
 

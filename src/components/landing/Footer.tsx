@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { FileText } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
@@ -10,9 +11,25 @@ export function Footer() {
 					<span className="font-semibold">Alto CV</span>
 				</div>
 				<Separator className="my-6" />
-				<p className="text-sm text-muted-foreground">
-					&copy; {new Date().getFullYear()} Alto CV. All rights reserved.
-				</p>
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+					<p className="text-sm text-muted-foreground">
+						&copy; {new Date().getFullYear()} Alto CV. All rights reserved.
+					</p>
+					<nav className="flex items-center gap-4 text-sm">
+						<Link
+							to="/terms"
+							className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+						>
+							Terms
+						</Link>
+						<Link
+							to="/privacy"
+							className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+						>
+							Privacy
+						</Link>
+					</nav>
+				</div>
 			</div>
 		</footer>
 	);
