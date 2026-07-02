@@ -1,34 +1,48 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, FileText } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { LogoMark } from "@/components/brand/Logo";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export function Hero() {
 	return (
-		<section className="px-4 py-24 sm:px-6 lg:px-8">
-			<div className="mx-auto max-w-4xl text-center">
-				<div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary">
-					<FileText className="h-8 w-8 text-primary-foreground" />
+		<section className="relative overflow-hidden px-4 py-28 sm:px-6 lg:px-8">
+			{/* warm ambient glow behind the headline */}
+			<div
+				aria-hidden
+				className="pointer-events-none absolute inset-x-0 -top-24 mx-auto h-72 max-w-3xl rounded-full bg-brand/10 blur-3xl"
+			/>
+			<div className="relative mx-auto max-w-3xl text-center">
+				<div className="mx-auto mb-8 w-fit">
+					<LogoMark size={64} className="drop-shadow-sm" />
 				</div>
-				<h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-					Build your perfect CV
+				<Badge variant="brand" className="mb-6 px-3 py-1 text-sm">
+					Crafted for the shortlist
+				</Badge>
+				<h1 className="font-serif text-5xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl">
+					Your career,
 					<br />
-					<span className="text-muted-foreground">in minutes</span>
+					<span className="text-brand">beautifully composed.</span>
 				</h1>
-				<p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-					Create professional, ATS-friendly resumes with our intuitive editor.
-					Real-time preview, multiple templates, and instant PDF export.
+				<p className="mx-auto mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground">
+					Turn your experience into a document worth reading. Alto gives you
+					considered templates, real-time preview, and one-click PDF export —
+					no design skills required.
 				</p>
-				<div className="mt-10 flex items-center justify-center gap-4">
-					<Button size="lg" asChild>
+				<div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+					<Button size="lg" variant="accent" asChild>
 						<Link to="/sign-up">
-							Get Started Free
-							<ArrowRight className="ml-2 h-4 w-4" />
+							Start building free
+							<ArrowRight className="ml-1 h-4 w-4" />
 						</Link>
 					</Button>
 					<Button size="lg" variant="outline" asChild>
-						<Link to="/sign-in">Sign In</Link>
+						<Link to="/sign-in">Sign in</Link>
 					</Button>
 				</div>
+				<p className="mt-5 text-sm text-muted-foreground">
+					Free to start · No credit card · ATS-friendly
+				</p>
 			</div>
 		</section>
 	);

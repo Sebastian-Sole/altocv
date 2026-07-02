@@ -105,7 +105,7 @@ export function AuthenticatedHome() {
 				<div className="mx-auto max-w-7xl">
 					<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 						<div>
-							<h1 className="text-3xl font-bold tracking-tight">
+							<h1 className="font-serif text-4xl font-semibold tracking-tight">
 								Welcome back, {firstName}
 							</h1>
 							<p className="mt-1 text-muted-foreground">
@@ -260,15 +260,15 @@ export function AuthenticatedHome() {
 			<section className="border-t bg-muted/30 px-4 py-16 sm:px-6 lg:px-8">
 				<div className="mx-auto max-w-7xl">
 					<div className="mb-2 flex items-center justify-center gap-2">
-						<Sparkles className="h-5 w-5 text-primary" />
+						<Sparkles className="h-5 w-5 text-brand" />
 						<Badge
-							variant="secondary"
+							variant="brand"
 							className="text-xs font-medium uppercase tracking-wider"
 						>
 							Premium
 						</Badge>
 					</div>
-					<h2 className="mt-3 text-center text-3xl font-bold">
+					<h2 className="mt-3 text-center font-serif text-3xl font-semibold tracking-tight">
 						Supercharge your job search
 					</h2>
 					<p className="mx-auto mt-3 max-w-xl text-center text-muted-foreground">
@@ -284,8 +284,8 @@ export function AuthenticatedHome() {
 							>
 								<CardHeader>
 									<div className="mb-1 flex items-center justify-between">
-										<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-											<feature.icon className="h-5 w-5 text-primary" />
+										<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10">
+											<feature.icon className="h-5 w-5 text-brand" />
 										</div>
 										<Badge
 											variant="outline"

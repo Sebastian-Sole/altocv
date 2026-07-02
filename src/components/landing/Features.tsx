@@ -29,22 +29,25 @@ const features = [
 
 export function Features() {
 	return (
-		<section className="border-t bg-muted/50 px-4 py-24 sm:px-6 lg:px-8">
+		<section className="border-t bg-muted/40 px-4 py-24 sm:px-6 lg:px-8">
 			<div className="mx-auto max-w-7xl">
-				<h2 className="text-center text-3xl font-bold">
+				<h2 className="text-center font-serif text-4xl font-semibold tracking-tight">
 					Everything you need to land the job
 				</h2>
-				<p className="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-					Powerful features that make CV building effortless.
+				<p className="mx-auto mt-4 max-w-2xl text-center text-lg text-muted-foreground">
+					Thoughtful tools that make a polished CV feel effortless.
 				</p>
-				<div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+				<div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					{features.map((feature) => (
-						<Card key={feature.title}>
+						<Card
+							key={feature.title}
+							className="transition-colors hover:border-brand/40"
+						>
 							<CardHeader>
-								<div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-									<feature.icon className="h-5 w-5 text-primary-foreground" />
+								<div className="mb-3 flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 text-brand">
+									<feature.icon className="h-5 w-5" />
 								</div>
-								<CardTitle>{feature.title}</CardTitle>
+								<CardTitle className="text-lg">{feature.title}</CardTitle>
 								<CardDescription>{feature.description}</CardDescription>
 							</CardHeader>
 						</Card>
