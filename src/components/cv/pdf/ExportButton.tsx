@@ -1,4 +1,5 @@
 import { PDFDownloadLink } from "@react-pdf/renderer";
+import "./pdf-setup";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
