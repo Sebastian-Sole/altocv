@@ -1,4 +1,5 @@
 import { pdf } from "@react-pdf/renderer";
+import "./pdf-setup";
 import { AlertTriangle, Loader2, RefreshCw } from "lucide-react";
 import * as pdfjs from "pdfjs-dist";
 import pdfjsWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
